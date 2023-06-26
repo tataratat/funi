@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iostream>
+#include <stdexcept>
 
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
@@ -95,6 +95,38 @@ py::tuple Unique(const py::array_t<DataType>& array_2d,
   }
 
   return py::make_tuple(unique_data, unique_ids_array, inverse);
+}
+
+py::tuple UniqueRows(const py::array& array_2d,
+                     const double tolerance,
+                     const bool return_unique,
+                     const bool return_index,
+                     const bool sorted_index,
+                     const bool return_inverse) {
+
+  const char dtype = array_2d.dtype().char_();
+  const char f = 'f';
+  const char d = 'd';
+
+  if (dtype == f) {
+    return Unique<float>(array_2d,
+                         tolerance,
+                         return_unique,
+                         return_index,
+                         sorted_index,
+                         return_inverse);
+  } else if (dtype == d) {
+    return Unique<double>(array_2d,
+                          tolerance,
+                          return_unique,
+                          return_index,
+                          sorted_index,
+                          return_inverse);
+  } else {
+    throw std::runtime_error("FUNI supports float32 and float64. For integer "
+                             "types, use `np.unique(data, axis=0)`");
+  }
+  return py::tuple();
 }
 
 } // namespace funi
