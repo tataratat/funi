@@ -41,7 +41,7 @@ using Vector = std::vector<Type, DefaultInitializationAllocator<Type>>;
 namespace internal {
 
 /// ArgSort along the height expects sorted_ids to be np.arnage(height * width)
-template<bool stable = true, typename DataType, typename IndexType>
+template<typename DataType, typename IndexType>
 void ArgSortAlongHeight(const DataType* to_sort,
                         const IndexType height,
                         const IndexType width,
@@ -82,18 +82,12 @@ void ArgSortAlongHeight(const DataType* to_sort,
   };
 
   // sort
-  if constexpr (stable) {
-    std::stable_sort(sorted_ids.begin(),
-                     sorted_ids.end(),
-                     lexicographical_compare);
-  } else {
-    std::sort(sorted_ids.begin(), sorted_ids.end(), lexicographical_compare);
-  }
+  std::sort(sorted_ids.begin(), sorted_ids.end(), lexicographical_compare);
 }
 
 } // namespace internal
 
-template<bool stable = true, typename DataType, typename IndexType>
+template<typename DataType, typename IndexType>
 Vector<IndexType> ArgSortAlongHeight(const DataType* to_sort,
                                      const IndexType height,
                                      const IndexType width,
@@ -108,7 +102,7 @@ Vector<IndexType> ArgSortAlongHeight(const DataType* to_sort,
   return sorted_ids;
 }
 
-template<bool stable = true, typename DataType, typename IndexType>
+template<typename DataType, typename IndexType>
 void UniqueIds(const DataType* flat_2d_array,
                const IndexType height,
                const IndexType width,
@@ -124,11 +118,11 @@ void UniqueIds(const DataType* flat_2d_array,
   }
 
   // argsort along the height. (row-wise argsort)
-  internal::ArgSortAlongHeight<stable>(flat_2d_array,
-                                       height,
-                                       width,
-                                       tolerance,
-                                       sorted_ids);
+  internal::ArgSortAlongHeight(flat_2d_array,
+                               height,
+                               width,
+                               tolerance,
+                               sorted_ids);
 
   auto is_same = [&](const IndexType& i_a, IndexType& i_b) {
     const DataType* a_ptr = &flat_2d_array[sorted_ids[i_a] * width];

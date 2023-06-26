@@ -16,7 +16,6 @@ using DefaultIndexType = std::size_t;
 template<typename DataType, typename IndexType = DefaultIndexType>
 py::tuple Unique(const py::array_t<DataType>& array_2d,
                  const DataType tolerance,
-                 const bool stable,
                  const bool return_unique,
                  const bool return_index,
                  const bool sorted_index,
@@ -52,23 +51,14 @@ py::tuple Unique(const py::array_t<DataType>& array_2d,
   }
 
   // compute
-  if (stable) {
-    UniqueIds<true>(array_2d_ptr,
-                    height,
-                    width,
-                    tolerance,
-                    sorted_ids,
-                    unique_ids,
-                    inverse_ptr);
-  } else {
-    UniqueIds<false>(array_2d_ptr,
-                     height,
-                     width,
-                     tolerance,
-                     sorted_ids,
-                     unique_ids,
-                     inverse_ptr);
-  }
+  UniqueIds(array_2d_ptr,
+            height,
+            width,
+            tolerance,
+            sorted_ids,
+            unique_ids,
+            inverse_ptr);
+
   // get unique count incase we need to return index or data
   const IndexType n_unique = static_cast<IndexType>(unique_ids.size());
 
