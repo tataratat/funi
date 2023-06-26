@@ -1,7 +1,7 @@
 # funi
 Find UNIque float array rows.
-[numpy.unique](https://numpy.org/doc/stable/reference/generated/numpy.unique.html) is an awesome function that alleviates headaches fast.
-Haven't you wished that it'd be applicable for 2D float arrays?
+[numpy.unique](https://numpy.org/doc/stable/reference/generated/numpy.unique.html) is an awesome function that alleviates headaches, fast.
+Haven you wished that it'd be applicable for 2D float arrays?
 `funi` is here to help!
 
 ## Install

@@ -7,7 +7,7 @@
 
 namespace funi {
 
-///
+/// http://stackoverflow.com/a/21028912/273767
 template<typename Type, typename BaseAllocator = std::allocator<Type>>
 class DefaultInitializationAllocator : public BaseAllocator {
   using AllocatorTraits_ = std::allocator_traits<BaseAllocator>;
