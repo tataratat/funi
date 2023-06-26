@@ -19,6 +19,7 @@ py::tuple Unique(const py::array_t<DataType>& array_2d,
                  const bool stable,
                  const bool return_unique,
                  const bool return_index,
+                 const bool sorted_index,
                  const bool return_inverse) {
 
   // input flag check
@@ -71,30 +72,35 @@ py::tuple Unique(const py::array_t<DataType>& array_2d,
   // get unique count incase we need to return index or data
   const IndexType n_unique = static_cast<IndexType>(unique_ids.size());
 
+  // finally, copy unique_ids
+  py::array_t<IndexType> unique_ids_array;
+  IndexType* unique_ids_array_ptr = nullptr;
+  if (return_index || return_unique) {
+    unique_ids_array = py::array_t<IndexType>(n_unique);
+    unique_ids_array_ptr =
+        static_cast<IndexType*>(unique_ids_array.request().ptr);
+
+    for (IndexType i{}; i < n_unique; ++i) {
+      unique_ids_array_ptr[i] = sorted_ids[unique_ids[i]];
+    }
+  }
+
+  // sorted ids? ok - inverse will be automatically included if needed
+  if (sorted_index && return_index) {
+    SortIdsAndInverse(n_unique, unique_ids_array_ptr, height, inverse_ptr);
+  }
+
   // prepare copied unique entries
   py::array_t<DataType> unique_data;
   if (return_unique) {
-
     unique_data = py::array_t<DataType>({n_unique, width});
     DataType* unique_data_ptr =
         static_cast<DataType*>(unique_data.request().ptr);
 
     for (IndexType i{}; i < n_unique; ++i) {
-      std::copy_n(&array_2d_ptr[sorted_ids[unique_ids[i]] * width],
+      std::copy_n(&array_2d_ptr[unique_ids_array_ptr[i] * width],
                   width,
                   &unique_data_ptr[i * width]);
-    }
-  }
-
-  // finally, copy unique_ids
-  py::array_t<IndexType> unique_ids_array;
-  if (return_index) {
-    unique_ids_array = py::array_t<IndexType>(n_unique);
-
-    IndexType* unique_ids_array_ptr =
-        static_cast<IndexType*>(unique_ids_array.request().ptr);
-    for (IndexType i{}; i < n_unique; ++i) {
-      unique_ids_array_ptr[i] = sorted_ids[unique_ids[i]];
     }
   }
 

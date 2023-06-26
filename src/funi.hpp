@@ -71,13 +71,10 @@ void ArgSortAlongHeight(const DataType* to_sort,
       // same within the tolerance?
       if (std::abs(ab_diff) < tolerance) {
         continue;
-
         // not the same.
       } else {
         return ab_diff < 0;
       }
-
-      // return false;
     }
     // happy compier
     // same. return false.
@@ -160,6 +157,64 @@ void UniqueIds(const DataType* flat_2d_array,
         ++inverse_counter;
       }
       inverse[sorted_ids[i]] = inverse_counter;
+    }
+  }
+}
+
+// sort and write back inplace
+template<typename IndexType>
+void SortIdsAndInverse(const IndexType ids_len,
+                       IndexType* ids,
+                       const IndexType inverse_len,
+                       IndexType* inverse) {
+
+  // argsort indices - arange initialize
+  Vector<IndexType> argsort_ids(ids_len);
+  Vector<IndexType> argsort_argsort_ids;
+  if (inverse) {
+    argsort_argsort_ids.resize(ids_len);
+    for (IndexType i{}; i < ids_len; ++i) {
+      argsort_ids[i] = argsort_argsort_ids[i] = i;
+    }
+  } else {
+    std::iota(argsort_ids.begin(), argsort_ids.end(), 0);
+  }
+
+  // first argsort to sort ids
+  auto compare_ids1 = [&](const IndexType& a, const IndexType& b) {
+    return ids[a] < ids[b];
+  };
+
+  std::sort(argsort_ids.begin(),
+            argsort_ids.end(),
+            compare_ids1); // should be unique
+
+  // make aux
+  std::vector<IndexType> sorted_ids(ids_len), sorted_inverse(inverse_len);
+  for (IndexType i{}; i < ids_len; ++i) {
+    sorted_ids[i] = ids[argsort_ids[i]];
+  }
+
+  // fill ids
+  for (IndexType i{}; i < ids_len; ++i) {
+    ids[i] = sorted_ids[i];
+  }
+
+  // process inverse
+  if (inverse) {
+    // second argsort to place inverse correctly
+    auto compare_ids2 = [&](const IndexType& a, const IndexType& b) {
+      return argsort_ids[a] < argsort_ids[b];
+    };
+
+    std::sort(argsort_argsort_ids.begin(),
+              argsort_argsort_ids.end(),
+              compare_ids2);
+    for (IndexType i{}; i < inverse_len; ++i) {
+      sorted_inverse[i] = argsort_argsort_ids[inverse[i]];
+    }
+    for (IndexType i{}; i < inverse_len; ++i) {
+      inverse[i] = sorted_inverse[i];
     }
   }
 }
