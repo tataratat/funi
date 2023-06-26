@@ -41,7 +41,7 @@ using Vector = std::vector<Type, DefaultInitializationAllocator<Type>>;
 namespace internal {
 
 /// ArgSort along the height expects sorted_ids to be np.arnage(height * width)
-template<typename DataType, typename IndexType>
+template<bool stable_sort = false, typename DataType, typename IndexType>
 void ArgSortAlongHeight(const DataType* to_sort,
                         const IndexType height,
                         const IndexType width,
@@ -76,18 +76,23 @@ void ArgSortAlongHeight(const DataType* to_sort,
         return ab_diff < 0;
       }
     }
-    // happy compier
     // same. return false.
     return false;
   };
 
   // sort
-  std::sort(sorted_ids.begin(), sorted_ids.end(), lexicographical_compare);
+  if constexpr (stable_sort) {
+    std::stable_sort(sorted_ids.begin(),
+                     sorted_ids.end(),
+                     lexicographical_compare);
+  } else {
+    std::sort(sorted_ids.begin(), sorted_ids.end(), lexicographical_compare);
+  }
 }
 
 } // namespace internal
 
-template<typename DataType, typename IndexType>
+template<bool stable_sort = false, typename DataType, typename IndexType>
 Vector<IndexType> ArgSortAlongHeight(const DataType* to_sort,
                                      const IndexType height,
                                      const IndexType width,
@@ -97,12 +102,16 @@ Vector<IndexType> ArgSortAlongHeight(const DataType* to_sort,
   sorted_ids.resize(height);
   std::iota(sorted_ids.begin(), sorted_ids.end(), 0);
 
-  internal::ArgSortAlongHeight(to_sort, height, width, tolerance, sorted_ids);
+  internal::ArgSortAlongHeight<stable_sort>(to_sort,
+                                            height,
+                                            width,
+                                            tolerance,
+                                            sorted_ids);
 
   return sorted_ids;
 }
 
-template<typename DataType, typename IndexType>
+template<bool stable_sort = false, typename DataType, typename IndexType>
 void UniqueIds(const DataType* flat_2d_array,
                const IndexType height,
                const IndexType width,
@@ -118,11 +127,11 @@ void UniqueIds(const DataType* flat_2d_array,
   }
 
   // argsort along the height. (row-wise argsort)
-  internal::ArgSortAlongHeight(flat_2d_array,
-                               height,
-                               width,
-                               tolerance,
-                               sorted_ids);
+  internal::ArgSortAlongHeight<stable_sort>(flat_2d_array,
+                                            height,
+                                            width,
+                                            tolerance,
+                                            sorted_ids);
 
   auto is_same = [&](const IndexType& i_a, IndexType& i_b) {
     const DataType* a_ptr = &flat_2d_array[sorted_ids[i_a] * width];
@@ -184,7 +193,7 @@ void SortIdsAndInverse(const IndexType ids_len,
             compare_ids1); // should be unique
 
   // make aux
-  std::vector<IndexType> sorted_ids(ids_len), sorted_inverse(inverse_len);
+  Vector<IndexType> sorted_ids(ids_len);
   for (IndexType i{}; i < ids_len; ++i) {
     sorted_ids[i] = ids[argsort_ids[i]];
   }
@@ -196,6 +205,7 @@ void SortIdsAndInverse(const IndexType ids_len,
 
   // process inverse
   if (inverse) {
+    Vector<IndexType> sorted_inverse(inverse_len);
     // second argsort to place inverse correctly
     auto compare_ids2 = [&](const IndexType& a, const IndexType& b) {
       return argsort_ids[a] < argsort_ids[b];

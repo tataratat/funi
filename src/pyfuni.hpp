@@ -19,7 +19,8 @@ py::tuple Unique(const py::array_t<DataType>& array_2d,
                  const bool return_unique,
                  const bool return_index,
                  const bool sorted_index,
-                 const bool return_inverse) {
+                 const bool return_inverse,
+                 const bool stable_sort) {
 
   // input flag check
   if (!return_unique && !return_index && !return_inverse) {
@@ -51,13 +52,23 @@ py::tuple Unique(const py::array_t<DataType>& array_2d,
   }
 
   // compute
-  UniqueIds(array_2d_ptr,
-            height,
-            width,
-            tolerance,
-            sorted_ids,
-            unique_ids,
-            inverse_ptr);
+  if (stable_sort) {
+    UniqueIds<true>(array_2d_ptr,
+                    height,
+                    width,
+                    tolerance,
+                    sorted_ids,
+                    unique_ids,
+                    inverse_ptr);
+  } else {
+    UniqueIds<false>(array_2d_ptr,
+                     height,
+                     width,
+                     tolerance,
+                     sorted_ids,
+                     unique_ids,
+                     inverse_ptr);
+  }
 
   // get unique count incase we need to return index or data
   const IndexType n_unique = static_cast<IndexType>(unique_ids.size());
@@ -102,7 +113,8 @@ py::tuple UniqueRows(const py::array& array_2d,
                      const bool return_unique,
                      const bool return_index,
                      const bool sorted_index,
-                     const bool return_inverse) {
+                     const bool return_inverse,
+                     const bool stable_sort) {
 
   const char dtype = array_2d.dtype().char_();
   const char f = 'f';
@@ -114,14 +126,16 @@ py::tuple UniqueRows(const py::array& array_2d,
                          return_unique,
                          return_index,
                          sorted_index,
-                         return_inverse);
+                         return_inverse,
+                         stable_sort);
   } else if (dtype == d) {
     return Unique<double>(array_2d,
                           tolerance,
                           return_unique,
                           return_index,
                           sorted_index,
-                          return_inverse);
+                          return_inverse,
+                          stable_sort);
   } else {
     throw std::runtime_error("FUNI supports float32 and float64. For integer "
                              "types, use `np.unique(data, axis=0)`");
