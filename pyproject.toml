@@ -8,7 +8,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
-test-command = "python {project}/tests/test_uffpy.py"
+test-command = "python {project}/tests/test_funi.py"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
