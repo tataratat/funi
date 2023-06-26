@@ -17,7 +17,7 @@ class FuniTest(unittest.TestCase):
 
         # sorted indices
         unique_s, ids_s, inv_s = funi.unique_float64(
-            self.q, tol, True, True, True, True
+            self.q, tol, True, True, True, True, True
         )
 
         # mapping check
@@ -30,7 +30,7 @@ class FuniTest(unittest.TestCase):
         # not sorted
         # sorted indices
         unique_ns, ids_ns, inv_ns = funi.unique_float64(
-            self.q, tol, True, True, False, True
+            self.q, tol, True, True, False, True, True
         )
 
         # mapping check
@@ -39,7 +39,7 @@ class FuniTest(unittest.TestCase):
 
         # no unique return - sorted
         unique, ids, inv = funi.unique_float64(
-            self.q, tol, False, True, True, True
+            self.q, tol, False, True, True, True, True
         )
 
         assert unique.size == 0
@@ -49,7 +49,7 @@ class FuniTest(unittest.TestCase):
 
         # no unique return - not sorted
         unique, ids, inv = funi.unique_float64(
-            self.q, tol, False, True, False, True
+            self.q, tol, False, True, False, True, True
         )
 
         assert unique.size == 0
@@ -59,7 +59,7 @@ class FuniTest(unittest.TestCase):
 
         # no inverse - sorted
         unique, ids, inv = funi.unique_float64(
-            self.q, tol, True, True, True, False
+            self.q, tol, True, True, True, False, True
         )
 
         assert inv.size == 0
@@ -68,7 +68,7 @@ class FuniTest(unittest.TestCase):
 
         # no invese - not sorted
         unique, ids, inv = funi.unique_float64(
-            self.q, tol, True, True, False, False
+            self.q, tol, True, True, False, False, True
         )
 
         assert inv.size == 0
