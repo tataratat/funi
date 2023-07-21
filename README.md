@@ -3,6 +3,9 @@ Find UNIque float array rows.
 [numpy.unique](https://numpy.org/doc/stable/reference/generated/numpy.unique.html) is an awesome function that alleviates headaches, fast.
 Haven't you wished that it'd be applicable for 2D float arrays?
 `funi` is here to help!
+There are two available methods: `axis` and `lexicographic`.
+`axis` will first project each array to an axis to sort, where as
+`lexicographic` sorts given array in lexicographical manner.
 
 ## Install
 ```bash
@@ -19,18 +22,12 @@ arr = np.random.random((10000, 3))
 arr = np.vstack((arr, arr, arr))
 np.random.shuffle(arr)
 
-# specify tolerance and
-# tolerance is used to compare entries in column-wise.
-# consider it as bounding-box edge length for duplicate identification
-# with stable_sort + sorted_index unique_id will start from 0
+# specify tolerance and if you want your unique ids to be stable sorted.
 unique_data, unique_ids, inverse = funi.unique_rows(
     arr,
     tolerance=1e-11,
-    return_unique=True,
-    return_index=True,
     sorted_index=True,
-    return_inverse=True,
-    stable_sort=True,
+    method="axis",
 )
 
 # use ids to extract unique_data from the original array

@@ -16,9 +16,7 @@ class FuniTest(unittest.TestCase):
         tol = 1e-10
 
         # sorted indices
-        unique_s, ids_s, inv_s = funi.unique_float64(
-            self.q, tol, True, True, True, True, True
-        )
+        unique_s, ids_s, inv_s = funi.unique_rows(self.q, tol, True, "l")
 
         # mapping check
         assert np.allclose(self.q[ids_s], unique_s)
@@ -29,51 +27,30 @@ class FuniTest(unittest.TestCase):
 
         # not sorted
         # sorted indices
-        unique_ns, ids_ns, inv_ns = funi.unique_float64(
-            self.q, tol, True, True, False, True, True
-        )
+        unique_ns, ids_ns, inv_ns = funi.unique_rows(self.q, tol, False, "l")
 
         # mapping check
         assert np.allclose(self.q[ids_ns], unique_ns)
         assert np.allclose(self.q, unique_ns[inv_ns])
 
-        # no unique return - sorted
-        unique, ids, inv = funi.unique_float64(
-            self.q, tol, False, True, True, True, True
-        )
+        # now for axis based
+        # sorted indices
+        unique_s, ids_s, inv_s = funi.unique_rows(self.q, tol, True, "a")
 
-        assert unique.size == 0
-        assert np.allclose(self.q, self.q[ids][inv])
-        assert np.allclose(ids, ids_s)
-        assert np.allclose(inv, inv_s)
+        # mapping check
+        assert np.allclose(self.q[ids_s], unique_s)
+        assert np.allclose(self.q, unique_s[inv_s])
 
-        # no unique return - not sorted
-        unique, ids, inv = funi.unique_float64(
-            self.q, tol, False, True, False, True, True
-        )
+        # sortedness check
+        assert ~np.all(np.diff(ids_s) < 0)
 
-        assert unique.size == 0
-        assert np.allclose(self.q, self.q[ids][inv])
-        assert np.allclose(ids, ids_ns)
-        assert np.allclose(inv, inv_ns)
+        # not sorted
+        # sorted indices
+        unique_ns, ids_ns, inv_ns = funi.unique_rows(self.q, tol, False, "a")
 
-        # no inverse - sorted
-        unique, ids, inv = funi.unique_float64(
-            self.q, tol, True, True, True, False, True
-        )
-
-        assert inv.size == 0
-        assert np.allclose(unique, self.q[ids])
-        assert np.allclose(ids, ids_s)
-
-        # no invese - not sorted
-        unique, ids, inv = funi.unique_float64(
-            self.q, tol, True, True, False, False, True
-        )
-
-        assert inv.size == 0
-        assert np.allclose(unique, self.q[ids])
-        assert np.allclose(ids, ids_ns)
+        # mapping check
+        assert np.allclose(self.q[ids_ns], unique_ns)
+        assert np.allclose(self.q, unique_ns[inv_ns])
 
 
 if __name__ == "__main__":
