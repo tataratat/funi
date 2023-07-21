@@ -23,7 +23,7 @@ class FuniTest(unittest.TestCase):
         assert np.allclose(self.q, unique_s[inv_s])
 
         # sortedness check
-        assert ~np.all(np.diff(ids_s) < 0)
+        assert np.all(np.diff(ids_s) > 0)
 
         # not sorted
         # sorted indices
@@ -42,7 +42,7 @@ class FuniTest(unittest.TestCase):
         assert np.allclose(self.q, unique_s[inv_s])
 
         # sortedness check
-        assert ~np.all(np.diff(ids_s) < 0)
+        assert np.all(np.diff(ids_s) > 0)
 
         # not sorted
         # sorted indices
@@ -51,6 +51,16 @@ class FuniTest(unittest.TestCase):
         # mapping check
         assert np.allclose(self.q[ids_ns], unique_ns)
         assert np.allclose(self.q, unique_ns[inv_ns])
+
+    def test_cross_compare(self):
+        # Compare the results against each other
+        tol = 1e-10
+        a_unique_s, a_ids_s, a_inv_s = funi.unique_rows(self.q, tol, True, "a")
+        l_unique_s, l_ids_s, l_inv_s = funi.unique_rows(self.q, tol, True, "l")
+
+        assert np.allclose(a_unique_s, l_unique_s)
+        assert np.all(a_ids_s == l_ids_s)
+        assert np.all(a_inv_s == l_inv_s)
 
 
 if __name__ == "__main__":
