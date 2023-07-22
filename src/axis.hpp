@@ -9,9 +9,8 @@
 namespace funi {
 
 /* util routines */
-template<typename T, typename IndexingType>
-inline T DiffNormSquared(const T* a,
-                         const IndexingType& start_a,
+template <typename T, typename IndexingType>
+inline T DiffNormSquared(const T* a, const IndexingType& start_a,
                          const IndexingType& start_b,
                          const IndexingType& size) {
   T res{};
@@ -27,20 +26,19 @@ inline T DiffNormSquared(const T* a,
  * ref:
  *   stackoverflow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes
  */
-template<typename IndexingType, typename T>
+template <typename IndexingType, typename T>
 std::vector<IndexingType> ArgSort(const std::vector<T>& v) {
   std::vector<IndexingType> idx(v.size());
   std::iota(idx.begin(), idx.end(), 0);
 
   std::stable_sort(
-      idx.begin(),
-      idx.end(),
+      idx.begin(), idx.end(),
       [&v](IndexingType i1, IndexingType i2) { return v[i1] < v[i2]; });
 
   return idx;
 }
 
-template<bool stable_sort, typename DataType, typename IndexingType>
+template <bool stable_sort, typename DataType, typename IndexingType>
 inline void Uff(DataType* original_points,          /* in */
                 IndexingType& number_of_points,     /* in */
                 IndexingType& point_dim,            /* in */
@@ -69,7 +67,7 @@ inline void Uff(DataType* original_points,          /* in */
 
   // Reallocate new vector, set to -1 to mark untouched
   std::vector<IndexingType> stable_inverse;
-  std::vector<bool> newpointmasks(number_of_points); // zero (false) init
+  std::vector<bool> newpointmasks(number_of_points);  // zero (false) init
   std::fill(inverse, inverse + number_of_points, -1);
 
   // Loop over points
@@ -93,8 +91,8 @@ inline void Uff(DataType* original_points,          /* in */
     if (!stable) {
       for (IndexingType i_dim{0}; i_dim < point_dim; i_dim++) {
         new_points[number_of_new_points * point_dim + i_dim] =
-            original_points[metric_order_indices[lower_limit] * point_dim
-                            + i_dim];
+            original_points[metric_order_indices[lower_limit] * point_dim +
+                            i_dim];
         new_indices[number_of_new_points] = metric_order_indices[lower_limit];
       }
     }
@@ -102,29 +100,27 @@ inline void Uff(DataType* original_points,          /* in */
 
     // Now check allowed range for duplicates
     IndexingType upper_limit = lower_limit + 1;
-    while ((vector_metric[metric_order_indices[upper_limit]]
-            - vector_metric[metric_order_indices[lower_limit]])
-           < tolerance) {
+    while ((vector_metric[metric_order_indices[upper_limit]] -
+            vector_metric[metric_order_indices[lower_limit]]) < tolerance) {
       const bool is_duplicate =
           DiffNormSquared(original_points,
                           metric_order_indices[lower_limit] * point_dim,
                           metric_order_indices[upper_limit] * point_dim,
-                          point_dim)
-          < tolerance_squared;
+                          point_dim) < tolerance_squared;
       if (is_duplicate) {
         inverse[metric_order_indices[upper_limit]] = number_of_new_points;
         newpointmasks[metric_order_indices[upper_limit]] = false;
         // If stable, the index with the lower id needs to be stored
-        if ((stable)
-            && (metric_order_indices[upper_limit] < current_lowest_id)) {
+        if ((stable) &&
+            (metric_order_indices[upper_limit] < current_lowest_id)) {
           newpointmasks[metric_order_indices[upper_limit]] = true;
           newpointmasks[current_lowest_id] = false;
           current_lowest_id = metric_order_indices[upper_limit];
         }
       }
       upper_limit++;
-      if (upper_limit
-          >= static_cast<IndexingType>(metric_order_indices.size())) {
+      if (upper_limit >=
+          static_cast<IndexingType>(metric_order_indices.size())) {
         break;
       }
     }
@@ -137,8 +133,8 @@ inline void Uff(DataType* original_points,          /* in */
     if (!stable) {
       for (IndexingType i_dim{0}; i_dim < point_dim; i_dim++) {
         new_points[number_of_new_points * point_dim + i_dim] =
-            original_points[metric_order_indices[last_index] * point_dim
-                            + i_dim];
+            original_points[metric_order_indices[last_index] * point_dim +
+                            i_dim];
         new_indices[number_of_new_points] = metric_order_indices[last_index];
       }
     }
@@ -149,7 +145,9 @@ inline void Uff(DataType* original_points,          /* in */
 
   if (stable) {
     IndexingType counter{};
-    stable_inverse.assign(number_of_new_points, -1);
+    // This could be a map (but I think this is sufficient for the moment,
+    // especially if only a few number of duplicates exist)
+    stable_inverse.assign(number_of_points, -1);
     for (IndexingType i{0}; i < number_of_points; i++) {
       if (newpointmasks[i]) {
         for (IndexingType j{0}; j < point_dim; j++) {
@@ -166,4 +164,4 @@ inline void Uff(DataType* original_points,          /* in */
   }
 }
 
-} // namespace funi
+}  // namespace funi
