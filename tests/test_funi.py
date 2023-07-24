@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-import funi
+import funi  # isort:skip
 
 
 class FuniTest(unittest.TestCase):
