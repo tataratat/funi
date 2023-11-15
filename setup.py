@@ -4,7 +4,7 @@ from setuptools import setup
 with open("README.md") as f:
     readme = f.read()
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 ext_modules = [
     Pybind11Extension(
