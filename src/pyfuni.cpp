@@ -1,7 +1,7 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
-#include <pyfuni.hpp>
+#include "pyfuni.hpp"
 
 PYBIND11_MODULE(funi, m) {
   m.def("unique_rows",
@@ -10,4 +10,6 @@ PYBIND11_MODULE(funi, m) {
         pybind11::arg("tolerance"),
         pybind11::arg("sorted_index"),
         pybind11::arg("method"));
+
+  m.attr("__version__") = "0.1.0";
 }

@@ -84,7 +84,7 @@ inline void Uff(DataType* original_points,          /* in */
       newpointmasks[metric_order_indices[lower_limit]] = true;
     }
 
-    // Value only required for stable sort (tracks the lowest occurence id of a
+    // Value only required for stable sort (tracks the lowest occurrence id of a
     // given point, that might be duplicate)
     IndexingType current_lowest_id{metric_order_indices[lower_limit]};
 
