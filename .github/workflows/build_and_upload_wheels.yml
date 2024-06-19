@@ -6,26 +6,33 @@ on:
   pull_request:
 
 jobs:
-  macos_wheel:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        arch: [x86_64, arm64]
-        cw_build: ["pp*", "cp*"]
-        exclude:
-          - arch: arm64
-            cw_build: "pp*"
+  macos_wheel_m:
+    runs-on: macos-14
 
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: build wheels
-      uses: pypa/cibuildwheel@v2.16.2
+      uses: pypa/cibuildwheel@v2.19
       env:
-        CIBW_ARCHS: ${{ matrix.arch }}
-        CIBW_BUILD: ${{ matrix.cw_build }}
-        CIBW_TEST_SKIP: "*-macosx_arm64"
+        CIBW_ARCHS: "arm64"
+
+    - uses: actions/upload-artifact@v3
+      with:
+        path: ./wheelhouse/*.whl
+
+  macos_wheel_intel:
+    runs-on: macos-13
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - name: build wheels
+      uses: pypa/cibuildwheel@v2.19
+      env:
+        CIBW_ARCHS: "x86_64"
 
     - uses: actions/upload-artifact@v3
       with:
@@ -45,7 +52,7 @@ jobs:
       with:
         submodules: recursive
     - name: build wheels
-      uses: pypa/cibuildwheel@v2.16.2
+      uses: pypa/cibuildwheel@v2.19
       env:
         CIBW_ARCHS: ${{ matrix.arch }}
         CIBW_BUILD: ${{ matrix.cw_build }}
@@ -103,7 +110,7 @@ jobs:
       with:
         submodules: recursive
     - name: build wheels
-      uses: pypa/cibuildwheel@v2.16.2
+      uses: pypa/cibuildwheel@v2.19
       env:
         CIBW_ARCHS: ${{ matrix.arch }}
 
