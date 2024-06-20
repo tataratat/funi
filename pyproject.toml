@@ -1,18 +1,29 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel",
-    "pybind11",
-]
+requires = ["scikit-build-core", "pybind11>=2.12"]
+build-backend = "scikit_build_core.build"
 
-build-backend = "setuptools.build_meta"
+[project]
+name = "funi"
+version = "0.1.0"
+authors = [
+    {name="Jaewook Lee", email="jaewooklee042@gmail.com"},
+]
+license = {file = "LICENSE"}
+description = "Find unique float arrays."
+urls = {Homepage = "https://github.com/tataratat/funi"}
+classifiers=[
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Natural Language :: English",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = ["numpy"]
+requires-python = '>=3.7'
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
 
 [tool.cibuildwheel]
 test-command = "python {project}/tests/test_funi.py"
-
-[tool.cibuildwheel.macos]
-archs = ["x86_64", "arm64"]
-test-skip = ["*arm64"]
-
-[tool.cibuildwheel.windows]
-skip = "pp*"

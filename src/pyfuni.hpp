@@ -56,7 +56,7 @@ py::tuple LexiUnique(const py::array_t<DataType>& array_2d,
                      inverse_ptr);
   }
 
-  // get unique count incase we need to return index or data
+  // get unique count in case we need to return index or data
   const IndexType n_unique = static_cast<IndexType>(unique_ids.size());
 
   // finally, copy unique_ids
