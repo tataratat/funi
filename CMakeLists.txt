@@ -8,8 +8,8 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 endif()
 
-# options - default is header only
-option(FUNI_BUILD_PYTHON "build python" ON)
+# options - default is to build python module together
+option(FUNI_BUILD_PYTHON "build python module" ON)
 
 # config
 set(exe_dest "bin")
