@@ -27,7 +27,7 @@ repos:
   - id: trailing-whitespace
 
 - repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: v18.1.5
+  rev: v18.1.8
   hooks:
   - id: clang-format
     types_or: [c, c++]
@@ -38,7 +38,7 @@ repos:
   - id: cmake-format
 
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.2.6
+  rev: v2.3.0
   hooks:
   - id: codespell
     args: [-w]
