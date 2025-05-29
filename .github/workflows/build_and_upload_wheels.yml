@@ -5,37 +5,43 @@ on:
     branches: ["main"]
   pull_request:
 
+concurrency:
+  group: ${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   macos_wheel_m:
-    runs-on: macos-14
+    runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
     - name: build wheels
-      uses: pypa/cibuildwheel@v2.19
+      uses: pypa/cibuildwheel@v2.23
       env:
         CIBW_ARCHS: "arm64"
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
+        name: wheels-macos-latest
         path: ./wheelhouse/*.whl
 
   macos_wheel_intel:
     runs-on: macos-13
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
     - name: build wheels
-      uses: pypa/cibuildwheel@v2.19
+      uses: pypa/cibuildwheel@v2.23
       env:
         CIBW_ARCHS: "x86_64"
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
+        name: wheels-macos-13
         path: ./wheelhouse/*.whl
 
 
@@ -48,17 +54,18 @@ jobs:
 
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
     - name: build wheels
-      uses: pypa/cibuildwheel@v2.19
+      uses: pypa/cibuildwheel@v2.23
       env:
         CIBW_ARCHS: ${{ matrix.arch }}
         CIBW_BUILD: ${{ matrix.cw_build }}
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
+        name: wheels-linux-${{ strategy.job-index }}
         path: ./wheelhouse/*.whl
 
   linux_wheel_qemu:
@@ -66,7 +73,7 @@ jobs:
     strategy:
       matrix:
         arch: [aarch64, ppc64le]
-        cw_build: ["cp37*many*", "cp38*many*", "cp39*many*", "cp310*many*", "cp311*many*", "cp312*many*", "pp37*many*", "pp38*many*", "pp39*many*"]
+        cw_build: ["cp37*many*", "cp38*many*", "cp39*many*", "cp310*many*", "cp311*many*", "cp312*many*", "cp313*many*", "pp37*many*", "pp38*many*", "pp39*many*", "pp310*many*", "pp311*many*"]
         exclude:
           - arch: ppc64le
             cw_build: "pp37*many*"
@@ -74,9 +81,13 @@ jobs:
             cw_build: "pp38*many*"
           - arch: ppc64le
             cw_build: "pp39*many*"
+          - arch: ppc64le
+            cw_build: "pp310*many*"
+          - arch: ppc64le
+            cw_build: "pp311*many*"
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
 
@@ -87,16 +98,16 @@ jobs:
         platforms: arm64, ppc64le
 
     - name: build wheels
-      uses: pypa/cibuildwheel@v2.16.2
+      uses: pypa/cibuildwheel@v2.23
       env:
         CIBW_ARCHS: ${{ matrix.arch }}
         CIBW_BUILD: ${{ matrix.cw_build }}
         CIBW_TEST_SKIP: "*-*linux_{aarch64,ppc64le,s390x}"
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
+        name: wheels-linux-qemu-${{ strategy.job-index }}
         path: ./wheelhouse/*.whl
-
 
 
   windows_wheel:
@@ -106,33 +117,36 @@ jobs:
         arch: [x86, AMD64, ARM64]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
     - name: build wheels
-      uses: pypa/cibuildwheel@v2.19
+      uses: pypa/cibuildwheel@v2.23
       env:
         CIBW_ARCHS: ${{ matrix.arch }}
         CIBW_SKIP: "pp*"
 
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
+        name: wheels-windows-${{ strategy.job-index }}
         path: ./wheelhouse/*.whl
 
 
   source_dist:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
 
     - name: Build sdist
       run: pipx run build --sdist
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
+        # technically not a wheel
+        name: wheels-source
         path: ./dist/*
 
   upload_pypi:
@@ -141,9 +155,10 @@ jobs:
     # try to publish only if this is a push to stable branch
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: artifact
+          pattern: wheels-*
+          merge-multiple: true
           path: dist
 
       - uses: pypa/gh-action-pypi-publish@v1.6.1
