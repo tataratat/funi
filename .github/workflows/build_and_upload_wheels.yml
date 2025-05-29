@@ -7,7 +7,7 @@ on:
 
 jobs:
   macos_wheel_m:
-    runs-on: macos-14
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -20,7 +20,7 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: wheels-${{ strategy.job-index }}
+        name: wheels-macos-latest
         path: ./wheelhouse/*.whl
 
   macos_wheel_intel:
@@ -37,7 +37,7 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: wheels-${{ strategy.job-index }}
+        name: wheels-macos-13
         path: ./wheelhouse/*.whl
 
 
@@ -141,7 +141,8 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: wheels-${{ strategy.job-index }}
+        # technically not a wheel
+        name: wheels-source
         path: ./dist/*
 
   upload_pypi:
