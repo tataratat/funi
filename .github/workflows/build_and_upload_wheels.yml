@@ -5,6 +5,10 @@ on:
     branches: ["main"]
   pull_request:
 
+concurrency:
+  group: ${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   macos_wheel_m:
     runs-on: macos-latest
