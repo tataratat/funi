@@ -74,7 +74,7 @@ jobs:
     strategy:
       matrix:
         arch: [aarch64, ppc64le]
-        cw_build: ["cp310*many*", "cp311*many*", "cp312*many*", "cp313*many*", "cp314*many", "pp310*many*", "pp311*many*", "pp312*many", "pp313*many", "pp314*many"]
+        cw_build: ["cp310*many*", "cp311*many*", "cp312*many*", "cp313*many*", "cp314*many", "pp310*many*", "pp311*many*"]
         exclude:
           - arch: ppc64le
             cw_build: "pp37*many*"
@@ -86,12 +86,6 @@ jobs:
             cw_build: "pp310*many*"
           - arch: ppc64le
             cw_build: "pp311*many*"
-          - arch: ppc64le
-            cw_build: "pp312*many"
-          - arch: ppc64le
-            cw_build: "pp313*many"
-          - arch: ppc64le
-            cw_build: "pp314*many"
     steps:
     - uses: actions/checkout@v4
       with:
