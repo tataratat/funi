@@ -27,3 +27,6 @@ content-type = "text/markdown"
 
 [tool.cibuildwheel]
 test-command = "python {project}/tests/test_funi.py"
+
+[tool.cibuildwheel.windows]
+repair-wheel-command = ""
