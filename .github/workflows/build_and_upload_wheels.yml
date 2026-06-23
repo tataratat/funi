@@ -15,7 +15,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
     - name: build wheels
@@ -23,7 +23,7 @@ jobs:
       env:
         CIBW_ARCHS: "arm64"
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: wheels-macos-latest
         path: ./wheelhouse/*.whl
@@ -32,7 +32,7 @@ jobs:
     runs-on: macos-13
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
     - name: build wheels
@@ -40,7 +40,7 @@ jobs:
       env:
         CIBW_ARCHS: "x86_64"
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: wheels-macos-13
         path: ./wheelhouse/*.whl
@@ -55,7 +55,7 @@ jobs:
 
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
     - name: build wheels
@@ -64,7 +64,7 @@ jobs:
         CIBW_ARCHS: ${{ matrix.arch }}
         CIBW_BUILD: ${{ matrix.cw_build }}
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: wheels-linux-${{ strategy.job-index }}
         path: ./wheelhouse/*.whl
@@ -77,17 +77,17 @@ jobs:
         arch: [x86, AMD64, ARM64]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
     - name: build wheels
-      uses: pypa/cibuildwheel@v2.23
+      uses: pypa/cibuildwheel@v4.1.0
       env:
         CIBW_ARCHS: ${{ matrix.arch }}
         CIBW_SKIP: "pp*"
 
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: wheels-windows-${{ strategy.job-index }}
         path: ./wheelhouse/*.whl
@@ -96,33 +96,32 @@ jobs:
   source_dist:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
 
     - name: Build sdist
       run: pipx run build --sdist
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         # technically not a wheel
         name: wheels-source
         path: ./dist/*
 
-  # upload_pypi:
-   # needs: [macos_wheel_m, macos_wheel_intel, linux_wheel, windows_wheel, source_dist]
-   #  runs-on: ubuntu-latest
-    # try to publish only if this is a push to stable branch
-    # if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-    # steps:
-    #   - uses: actions/download-artifact@v4
-     #    with:
-     #      pattern: wheels-*
-     #     merge-multiple: true
-     #     path: dist
+  upload_pypi:
+    needs: [macos_wheel_m, macos_wheel_intel, linux_wheel, windows_wheel, source_dist]
+     runs-on: ubuntu-latest
+       # try to publish only if this is a push to stable branch
+     steps:
+       - uses: actions/download-artifact@v8
+         with:
+          pattern: wheels-*
+          merge-multiple: true
+          path: dist
 
-    #- uses: pypa/gh-action-pypi-publish@v1.6.1
-          # with:
-          # skip_existing: true
-          #user: __token__
-          #password: ${{ secrets.PYPI_TOKEN }}
+             # - uses: pypa/gh-action-pypi-publish@v1.6.1
+             #with:
+             #skip_existing: true
+             #user: __token__
+             #password: ${{ secrets.PYPI_TOKEN }}
