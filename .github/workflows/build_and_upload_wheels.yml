@@ -4,6 +4,7 @@ on:
   push:
     branches: ["main"]
   pull_request:
+    branches: ["main"]
 
 concurrency:
   # prevent empty str
@@ -15,32 +16,32 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
     - name: build wheels
-      uses: pypa/cibuildwheel@v2.23
+      uses: pypa/cibuildwheel@v4.1.0
       env:
         CIBW_ARCHS: "arm64"
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: wheels-macos-latest
         path: ./wheelhouse/*.whl
 
   macos_wheel_intel:
-    runs-on: macos-13
+    runs-on: macos-15-intel
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
     - name: build wheels
-      uses: pypa/cibuildwheel@v2.23
+      uses: pypa/cibuildwheel@v4.1.0
       env:
         CIBW_ARCHS: "x86_64"
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: wheels-macos-13
         path: ./wheelhouse/*.whl
@@ -51,63 +52,22 @@ jobs:
     strategy:
       matrix:
         arch: [x86_64]
-        cw_build: ["cp*manylinux*", "pp*manylinux*", "*musllinux*"]
+        cw_build: ["cp*manylinux*", "*musllinux*"]
 
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
     - name: build wheels
-      uses: pypa/cibuildwheel@v2.23
+      uses: pypa/cibuildwheel@v4.1.0
       env:
         CIBW_ARCHS: ${{ matrix.arch }}
         CIBW_BUILD: ${{ matrix.cw_build }}
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: wheels-linux-${{ strategy.job-index }}
-        path: ./wheelhouse/*.whl
-
-  linux_wheel_qemu:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [aarch64, ppc64le]
-        cw_build: ["cp37*many*", "cp38*many*", "cp39*many*", "cp310*many*", "cp311*many*", "cp312*many*", "cp313*many*", "pp37*many*", "pp38*many*", "pp39*many*", "pp310*many*", "pp311*many*"]
-        exclude:
-          - arch: ppc64le
-            cw_build: "pp37*many*"
-          - arch: ppc64le
-            cw_build: "pp38*many*"
-          - arch: ppc64le
-            cw_build: "pp39*many*"
-          - arch: ppc64le
-            cw_build: "pp310*many*"
-          - arch: ppc64le
-            cw_build: "pp311*many*"
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-
-    - name: Set up QEMU
-      if: runner.os == 'Linux'
-      uses: docker/setup-qemu-action@v2
-      with:
-        platforms: arm64, ppc64le
-
-    - name: build wheels
-      uses: pypa/cibuildwheel@v2.23
-      env:
-        CIBW_ARCHS: ${{ matrix.arch }}
-        CIBW_BUILD: ${{ matrix.cw_build }}
-        CIBW_TEST_SKIP: "*-*linux_{aarch64,ppc64le,s390x}"
-
-    - uses: actions/upload-artifact@v4
-      with:
-        name: wheels-linux-qemu-${{ strategy.job-index }}
         path: ./wheelhouse/*.whl
 
 
@@ -118,17 +78,17 @@ jobs:
         arch: [x86, AMD64, ARM64]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
     - name: build wheels
-      uses: pypa/cibuildwheel@v2.23
+      uses: pypa/cibuildwheel@v4.1.0
       env:
         CIBW_ARCHS: ${{ matrix.arch }}
-        CIBW_SKIP: "pp*"
+        CIBW_SKIP: "pp* cp314t-win_arm64"
 
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: wheels-windows-${{ strategy.job-index }}
         path: ./wheelhouse/*.whl
@@ -137,14 +97,14 @@ jobs:
   source_dist:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
 
     - name: Build sdist
       run: pipx run build --sdist
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         # technically not a wheel
         name: wheels-source
@@ -153,16 +113,16 @@ jobs:
   upload_pypi:
     needs: [macos_wheel_m, macos_wheel_intel, linux_wheel, windows_wheel, source_dist]
     runs-on: ubuntu-latest
-    # try to publish only if this is a push to stable branch
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+       # try to publish only if this is a push to stable branch
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: wheels-*
           merge-multiple: true
           path: dist
-
-      - uses: pypa/gh-action-pypi-publish@v1.6.1
+      - name: Upload to PyPI
+        if: github.ref == 'refs/heads/main'
+        uses: pypa/gh-action-pypi-publish@v1.6.1
         with:
           skip_existing: true
           user: __token__
