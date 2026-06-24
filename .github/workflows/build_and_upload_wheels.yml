@@ -2,8 +2,9 @@ name: build full and pypi upload
 
 on:
   push:
-    branches: ["main", "build-test"]
+    branches: ["main"]
   pull_request:
+    branches: ["main"]
 
 concurrency:
   # prevent empty str
