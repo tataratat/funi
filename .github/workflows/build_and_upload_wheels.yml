@@ -84,7 +84,7 @@ jobs:
       uses: pypa/cibuildwheel@v4.1.0
       env:
         CIBW_ARCHS: ${{ matrix.arch }}
-        CIBW_SKIP: ["pp*", cp314t-win_arm64]
+        CIBW_SKIP: "pp* cp314t-win_arm64"
 
 
     - uses: actions/upload-artifact@v7
